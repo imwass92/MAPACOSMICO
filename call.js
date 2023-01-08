@@ -146,6 +146,7 @@ function debut2(data){
                     var end = point.indexOf(')');
                     var lat = point.substring(middle2, end);
                     var lon = point.substring(start, middle1);
+                    
                     function formatMillier(nombre){
                       nombre += '';
                       var sep = ' ';
@@ -160,7 +161,7 @@ function debut2(data){
                     if(data["results"]["bindings"][i]["site_officiel"] != undefined){
                         var site = "<p style='text-align:center; font-weight:bold;'>Site : <a href="+ data["results"]["bindings"][i]["site_officiel"]["value"] +">"+data["results"]["bindings"][i]["site_officiel"]["value"]+"</a></p>";
                     }
-                    markerPoint.bindPopup("<img src='"+data["results"]["bindings"][i]["image"]["value"]+"' style='margin-left:auto; margin-right:auto; display:block;' width='120px' height='80px'><p style='text-align:center; font-weight:bold; text-transform: capitalize;'>"+data["results"]["bindings"][i]["cityLabel"]["value"]+"<p style='text-align:center; font-weight:bold; text-transform: capitalize;'>Population : "+formatMillier(data["results"]["bindings"][i]["population"]["value"])+"</p>"+site);
+                    markerPoint.bindPopup("<img src='"+data["results"]["bindings"][i]["image"]["value"]+"' style='margin-left:auto; margin-right:auto; display:block;' width='120px' height='80px'><p style='text-align:center; font-weight:bold; text-transform: capitalize;'>"+data["results"]["bindings"][i]["cityLabel"]["value"]+"<p style='text-align:center; font-weight:bold; text-transform: capitalize;'>Population : "+formatMillier(data["results"]["bindings"][i]["population"]["value"])+"</p>"+site+"<p style='text-align:center; font-weight:bold; text-transform: capitalize;'>Pays : "+data["results"]["bindings"][i]["countryLabel"]["value"]);
 
                     markerClusters.addLayer(markerPoint);
                     markerGroup.addLayer(markerPoint);
