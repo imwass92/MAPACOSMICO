@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js" integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw==" crossorigin=""></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Spectral:ital@1&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Serif&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.css" />
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.Default.css" />
+    <script type='text/javascript' src='https://unpkg.com/leaflet.markercluster@1.3.0/dist/leaflet.markercluster.js'></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Prata&display=swap" rel="stylesheet">
+
+    <script src="call.js"></script>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ==" crossorigin="" />
+    <style type="text/css">
+        #map{ /* la carte DOIT avoir une hauteur sinon elle n'apparaît pas */
+            height:700px;
+            width:70%;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow:1px 1px 12px rgba(0,0,0,0.7);
+            border:1px solid grey;
+        }
+        body {
+            background-image:url('./pictures/galaxie3.jpg'); background-size : 100% 100%;
+            background-repeat : no-repeat;
+            background-attachment : fixed;
+        }
+        h1 {
+            text-align:center;
+            color:white;
+            font-size:40px;
+            font-family: 'Prata', serif;
+            margin-top:50px;
+        }
+        button {
+            align-items: center;
+            margin-left:20px;
+            margin-right:20px;
+            border: 0 solid #E2E8F0;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 1);
+            font-size: 15px;
+            font-weight: 700;
+            justify-content: center;
+            padding: 12px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Noto Serif', serif;
+        }
+        button:hover:enabled {
+            transition-duration: 0.4s;
+            background-color:black;
+            color:white;
+        }
+        .boutons{
+           display:flex;
+           justify-content:center;
+        }
+        @media (max-width: 1500px) {
+			#map{
+		    	height:580px;
+		    	width:70%;
+		    }
+		}
+		.logo {
+            width:33px;
+            margin-bottom:-7px;
+        }
+        span {
+            font-family: 'Noto Serif', serif;
+            font-weight:bold;
+            margin-left:5px;
+            color:white;
+            font-size:15px;
+        }
+        .logos {
+            width:70%;
+            margin-left:auto;
+            margin-right:auto;
+            display:block;
+            margin-bottom:20px;
+            margin-top:5px;
+        }
+    </style>
+    <title>Title</title>
+</head>
+<body>
+    <h1>La répartition des montagnes et les grandes villes</h1>
+    <p style="color:white; text-align:center; margin-top:0px; font-size:18px;">Vous retrouverez sur cette carte l'ensemble des principales villes de chaque Pays, ainsi que des montagnes qui apparraissent sur d'autres planètes du système solaire aux mêmes coordonnées</p>
+    <div id="map">
+        <!-- Ici s'affichera la carte -->
+    </div>
+
+<script type="text/javascript">
+    // On initialise la latitude et la longitude de Paris (centre de la carte)
+    var lat = 30.852969;
+    var lon = 46.2;
+    var macarte = null;
+    var markerClusters;
+    var markerGroup;
+
+    // Servira à stocker les groupes de marqueurs
+    // Fonction d'initialisation de la carte
+    function initMap() {
+        // Créer l'objet "macarte" et l'insèrer dans l'élément HTML qui a l'ID "map"
+        macarte = L.map('map').setView([lat, lon], 2);
+
+        markerGroup = L.markerClusterGroup();
+        markerClusters = new L.layerGroup();
+        // Leaflet ne récupère pas les cartes (tiles) sur un serveur par défaut. Nous devons lui préciser où nous souhaitons les récupérer. Ici, openstreetmap.fr
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+            // Il est toujours bien de laisser le lien vers la source des données
+            attribution: 'données © <a href="//osm.org/copyright">OpenStreetMap</a>/ODbL - rendu <a href="//openstreetmap.fr">OSM France</a>',
+            minZoom: 1,
+            maxZoom: 20
+        }).addTo(macarte);
+
+        restartCity();
+        restartMont();
+    }
+    window.onload = function(){
+        // Fonction d'initialisation qui s'exécute lorsque le DOM est chargé
+        initMap();
+    };
+
+</script>
+    <div class="logos">
+        <img class="logo" src="./pictures/ville.png"><span style="margin-right:30px;">Grandes villes</span>
+        <img class="logo" src="./pictures/montagne.png"><span>Montagnes</span>
+    </div>
+    <div class="boutons">
+        <button onclick="clearMarker()" id="supp">Supprimer tous les marqueurs</button>
+        <button onclick="restartCity()" id="boutonVilles" class="ajout">Ajouter les villes</button>
+        <button onclick="restartMont()" id="boutonMons" class="ajout">Ajouter les montagnes</button>
+    </div>
+</body>
+</html>
